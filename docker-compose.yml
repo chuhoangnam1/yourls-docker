@@ -1,0 +1,58 @@
+version: '3.1'
+
+services:
+  mysql:
+    image: mysql:${MYSQL_VERSION:-5.7}
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-yourls}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-yourls}
+      MYSQL_USER: ${MYSQL_USER:-yourls}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-yourls}
+    volumes:
+      - yourls-db:/var/lib/mysql
+    networks:
+      - yourls-network
+
+  yourls:
+    image: yourls:${YOURLS_VERSION:-fpm-alpine}
+    restart: always
+    environment:
+      YOURLS_DB_HOST: mysql
+      YOURLS_DB_NAME: ${MYSQL_DATABASE:-yourls}
+      YOURLS_DB_USER: ${MYSQL_USER:-yourls}
+      YOURLS_DB_PASS: ${MYSQL_PASSWORD:-yourls}
+      YOURLS_SITE: ${YOURLS_SITE:-http://example.com}
+      YOURLS_USER: ${YOURLS_USER:-testuser}
+      YOURLS_PASS: ${YOURLS_PASS:-testuser}
+    depends_on:
+      - mysql
+    volumes:
+      - yourls-src:/var/www/html
+      - $PWD/yourls.conf.d/yourls-config.php:/var/www/html/user/config.php
+    networks:
+      - yourls-network
+
+  nginx:
+    image: nginx:${NGINX_VERSION:-1.19}
+    ports:
+      - 8180:80
+    volumes:
+      - $PWD/nginx.conf.d:/etc/nginx/conf.d:ro
+      - yourls-src:/var/www/html
+      - $PWD/yourls.conf.d/yourls-config.php:/var/www/html/user/config.php:ro
+    depends_on:
+      - yourls
+    restart: always
+    networks:
+      - yourls-network
+
+volumes:
+  yourls-db:
+    name: yourls-db
+  yourls-src:
+    name: yourls-src
+
+networks:
+  yourls-network:
+    name: yourls-network
