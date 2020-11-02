@@ -1,0 +1,5 @@
+.env
+!.env.example
+
+yourls.conf.d/yourls-config.php
+!yourls.conf.d/yourls-config.php.example
