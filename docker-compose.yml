@@ -11,8 +11,6 @@ services:
       MYSQL_PASSWORD: ${MYSQL_PASSWORD:-yourls}
     volumes:
       - yourls-db:/var/lib/mysql
-    networks:
-      - yourls-network
 
   yourls:
     image: yourls:${YOURLS_VERSION:-fpm-alpine}
@@ -29,8 +27,6 @@ services:
       - mysql
     volumes:
       - yourls-src:/var/www/html
-    networks:
-      - yourls-network
 
   nginx:
     image: nginx:${NGINX_VERSION:-1.19}
@@ -39,19 +35,12 @@ services:
     volumes:
       - ${PWD-.}/nginx.conf.d:/etc/nginx/conf.d:ro
       - yourls-src:/var/www/html
-      - ${PWD-.}/yourls.conf.d/yourls-config.php:/var/www/html/user/config.php:ro
     depends_on:
       - yourls
     restart: always
-    networks:
-      - yourls-network
 
 volumes:
   yourls-db:
     name: yourls-db
   yourls-src:
     name: yourls-src
-
-networks:
-  yourls-network:
-    name: yourls-network
