@@ -29,7 +29,6 @@ services:
       - mysql
     volumes:
       - yourls-src:/var/www/html
-      - $PWD/yourls.conf.d/yourls-config.php:/var/www/html/user/config.php
     networks:
       - yourls-network
 
@@ -38,9 +37,9 @@ services:
     ports:
       - ${NGINX_EXPOSE_PORT:-80}:80
     volumes:
-      - $PWD/nginx.conf.d:/etc/nginx/conf.d:ro
+      - ${PWD-.}/nginx.conf.d:/etc/nginx/conf.d:ro
       - yourls-src:/var/www/html
-      - $PWD/yourls.conf.d/yourls-config.php:/var/www/html/user/config.php:ro
+      - ${PWD-.}/yourls.conf.d/yourls-config.php:/var/www/html/user/config.php:ro
     depends_on:
       - yourls
     restart: always
